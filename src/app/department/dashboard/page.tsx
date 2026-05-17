@@ -229,13 +229,13 @@ export default function OfficerDashboard() {
               {editingNote?.id === complaint.id ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <textarea 
-                    value={editingNote.text}
-                    onChange={(e) => setEditingNote({ ...editingNote, text: e.target.value })}
+                    value={editingNote?.text || ''}
+                    onChange={(e) => setEditingNote(prev => prev ? { ...prev, text: e.target.value } : null)}
                     placeholder="Enter resolution notes..."
                     style={{ width: '100%', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text)', padding: '0.5rem', fontSize: '0.85rem', minHeight: '60px' }}
                   />
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => { handleUpdate(complaint.id, { internal_notes: editingNote.text }); setEditingNote(null); }} className="btn btn-primary" style={{ padding: '0.4rem', flex: 1, fontSize: '0.8rem' }}>Save Note</button>
+                    <button onClick={() => { handleUpdate(complaint.id, { internal_notes: editingNote?.text }); setEditingNote(null); }} className="btn btn-primary" style={{ padding: '0.4rem', flex: 1, fontSize: '0.8rem' }}>Save Note</button>
                     <button onClick={() => setEditingNote(null)} className="btn btn-secondary" style={{ padding: '0.4rem', flex: 1, fontSize: '0.8rem' }}>Cancel</button>
                   </div>
                 </div>
