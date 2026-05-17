@@ -34,7 +34,12 @@ export const authOptions: NextAuthOptions = {
           .eq('id', authData.user.id)
           .single();
 
-        if (error || !user) return null;
+        if (error) {
+          throw new Error('Database Error: ' + error.message);
+        }
+        if (!user) {
+          throw new Error('User profile not found in public database.');
+        }
 
         if (user.is_blocked) {
           throw new Error('Your account has been restricted. Please contact support.');

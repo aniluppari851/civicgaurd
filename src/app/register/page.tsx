@@ -106,38 +106,18 @@ export default function Register() {
         className="glass auth-card" 
         style={{ padding: '3rem', width: '100%', maxWidth: '450px' }}
       >
-        {success ? (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            style={{ textAlign: 'center', padding: '2rem 0' }}
-          >
-            <div style={{ width: '80px', height: '80px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-              <Mail size={40} color="var(--success)" />
-            </div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--text)' }}>Check your email</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6, fontSize: '0.95rem' }}>
-              A confirmation link has been sent to <br/><strong style={{ color: 'var(--text)' }}>{formData.email}</strong>.<br/><br/>
-              Please click the link to verify your account and complete registration.
-            </p>
-            <Link href="/login" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.8rem' }}>
-              Return to Login <ArrowRight size={20} />
-            </Link>
-          </motion.div>
-        ) : (
-          <>
-            <div className="auth-subtitle" style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <h2 className="auth-title" style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Account</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Join the community for a better city</p>
-            </div>
+        <div className="auth-subtitle" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <h2 className="auth-title" style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Account</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Join the community for a better city</p>
+        </div>
 
-            {error && (
-              <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '0.75rem', textAlign: 'center', fontSize: '0.8rem' }}>
-                {error}
-              </div>
-            )}
+        {error && (
+          <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '0.75rem', textAlign: 'center', fontSize: '0.8rem' }}>
+            {error}
+          </div>
+        )}
 
-            <form onSubmit={handleSubmit} className="auth-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <form onSubmit={handleSubmit} className="auth-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div className="profile-upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <div 
                   style={{ 
@@ -302,8 +282,7 @@ export default function Register() {
             <p className="auth-links" style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
               Already have an account? <Link href="/login" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Login here</Link>
             </p>
-          </>
-        )}
+
       </motion.div>
     </div>
   );
