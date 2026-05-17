@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       role = 'DEPARTMENT_OFFICER';
     }
 
-    // Check if user already exists in public.users
+    // Check if user already exists
     const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('users')
       .select('id')
@@ -28,46 +28,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
     }
 
-    // 1. Create user in Supabase Auth (using standard anon client to trigger email)
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?confirmed=true`,
-        data: {
-          name,
-        }
-      }
-    });
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (authError) {
-      console.error('Supabase Auth error:', authError);
-      return NextResponse.json({ error: authError.message }, { status: 400 });
-    }
-
-    if (!authData.user || !authData.user.id) {
-      return NextResponse.json({ error: 'Failed to create user account' }, { status: 500 });
-    }
-
-    // 2. Upsert new user into public.users (upsert prevents crashes if a DB trigger already inserted it)
+    // Insert new user into public.users
     const { data: newUser, error } = await supabaseAdmin
       .from('users')
-      .upsert({
-        id: authData.user.id,
+      .insert({
         name,
         email,
-        password: 'SUPABASE_AUTH_MANAGED', // Dummy value for old constraints
+        password: hashedPassword,
         role: role,
         image_url: image_url || null,
         bio: '', // Default empty bio
         is_blocked: false, // Default not blocked
         is_public: true // Default public profile
-      }, { onConflict: 'id' })
+      })
       .select('id, name, email, role, image_url')
       .single();
 
     if (error) {
-      console.error('Database Upsert Error:', error);
+      console.error('Database Insert Error:', error);
       throw error;
     }
 

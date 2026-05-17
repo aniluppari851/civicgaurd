@@ -14,38 +14,22 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // 1. Authenticate with Supabase Auth
-        const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
-          email: credentials.email,
-          password: credentials.password,
-        });
-
-        if (authError) {
-          // This will throw "Email not confirmed" if they haven't clicked the link!
-          throw new Error(authError.message);
-        }
-
-        if (!authData.user) return null;
-
-        // 2. Fetch extended profile from public.users by email (case-insensitive)
-        const { data: users, error } = await supabaseAdmin
+        // Fetch user from public.users by email
+        const { data: user, error } = await supabaseAdmin
           .from('users')
-          .select('*')
-          .ilike('email', credentials.email);
+          .select('*, user_departments(department_id)')
+          .eq('email', credentials.email)
+          .single();
 
-        if (error) {
-          throw new Error('Database Error: ' + error.message);
-        }
-        
-        if (!users || users.length === 0) {
-          throw new Error('User profile not found in public database. Please register again.');
+        if (error || !user) {
+          throw new Error('Invalid email or password');
         }
 
-        if (users.length > 1) {
-          throw new Error('Database Error: Multiple user profiles found for this account.');
+        // Verify password
+        const isValidPassword = await bcrypt.compare(credentials.password, user.password);
+        if (!isValidPassword) {
+          throw new Error('Invalid email or password');
         }
-
-        const user = users[0];
 
         if (user.is_blocked) {
           throw new Error('Your account has been restricted. Please contact support.');
