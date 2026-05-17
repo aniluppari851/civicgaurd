@@ -24,5 +24,6 @@ declare module 'next-auth/jwt' {
     role: string;
     departments?: string[];
     bio?: string;
+    image?: string | null;
   }
 }
