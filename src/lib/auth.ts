@@ -14,10 +14,24 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
+        // 1. Authenticate with Supabase Auth
+        const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+          email: credentials.email,
+          password: credentials.password,
+        });
+
+        if (authError) {
+          // This will throw "Email not confirmed" if they haven't clicked the link!
+          throw new Error(authError.message);
+        }
+
+        if (!authData.user) return null;
+
+        // 2. Fetch extended profile from public.users
         const { data: user, error } = await supabaseAdmin
           .from('users')
           .select('*, user_departments(department_id)')
-          .eq('email', credentials.email)
+          .eq('id', authData.user.id)
           .single();
 
         if (error || !user) return null;
@@ -25,9 +39,6 @@ export const authOptions: NextAuthOptions = {
         if (user.is_blocked) {
           throw new Error('Your account has been restricted. Please contact support.');
         }
-
-        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
-        if (!isPasswordCorrect) return null;
 
         let departments: string[] = [];
         if (user.role === 'DEPARTMENT_OFFICER') {

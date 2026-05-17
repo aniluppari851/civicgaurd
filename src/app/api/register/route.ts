@@ -32,16 +32,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // 1. Create user in Supabase Auth (This triggers the confirmation email)
+    const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        }
+      }
+    });
 
-    // Insert new user
+    if (authError) {
+      console.error('Supabase Auth error:', authError);
+      return NextResponse.json({ error: authError.message }, { status: 400 });
+    }
+
+    if (!authData.user) {
+      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
+    }
+
+    // 2. Insert new user into public.users
     const { data: newUser, error } = await supabaseAdmin
       .from('users')
       .insert({
+        id: authData.user.id,
         name,
         email,
-        password: hashedPassword,
+        password: 'SUPABASE_AUTH_MANAGED', // Dummy value for old constraints
         role: role,
         image_url: image_url || null,
         bio: '', // Default empty bio
