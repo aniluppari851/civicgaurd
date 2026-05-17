@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     const deptId = searchParams.get('deptId');
 
     // Security check: Does the user belong to this department?
-    if (!session.user.departments.includes(deptId)) {
+    if (!deptId || !session.user.departments.includes(deptId)) {
       return NextResponse.json({ error: 'Access denied to this department' }, { status: 403 });
     }
 
