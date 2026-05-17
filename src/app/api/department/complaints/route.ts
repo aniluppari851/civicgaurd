@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { recordAuditLog } from '@/lib/audit';
 
 export async function GET(req: Request) {
