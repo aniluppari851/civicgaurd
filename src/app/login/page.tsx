@@ -33,7 +33,7 @@ export default function Login() {
         window.location.href = '/dashboard';
       }
     } else {
-      alert('Invalid credentials');
+      alert(result?.error || 'Invalid credentials');
     }
   };
 
