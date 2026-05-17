@@ -27,11 +27,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!authData.user) return null;
 
-        // 2. Fetch extended profile from public.users by email
+        // 2. Fetch extended profile from public.users by email (case-insensitive)
         const { data: users, error } = await supabaseAdmin
           .from('users')
-          .select('*, user_departments(department_id)')
-          .eq('email', credentials.email);
+          .select('*')
+          .ilike('email', credentials.email);
 
         if (error) {
           throw new Error('Database Error: ' + error.message);
