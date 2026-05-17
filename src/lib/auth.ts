@@ -28,18 +28,24 @@ export const authOptions: NextAuthOptions = {
         if (!authData.user) return null;
 
         // 2. Fetch extended profile from public.users
-        const { data: user, error } = await supabaseAdmin
+        const { data: users, error } = await supabaseAdmin
           .from('users')
           .select('*, user_departments(department_id)')
-          .eq('id', authData.user.id)
-          .single();
+          .eq('id', authData.user.id);
 
         if (error) {
           throw new Error('Database Error: ' + error.message);
         }
-        if (!user) {
-          throw new Error('User profile not found in public database.');
+        
+        if (!users || users.length === 0) {
+          throw new Error('User profile not found in public database. Please register again.');
         }
+
+        if (users.length > 1) {
+          throw new Error('Database Error: Multiple user profiles found for this account.');
+        }
+
+        const user = users[0];
 
         if (user.is_blocked) {
           throw new Error('Your account has been restricted. Please contact support.');
