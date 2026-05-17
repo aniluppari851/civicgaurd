@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 export default function Register() {
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', image_url: '', officer_code: '' });
   const [loading, setLoading] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -72,7 +73,7 @@ export default function Register() {
       const regData = await regRes.json();
       if (!regRes.ok) throw new Error(regData.error || 'Registration failed');
 
-      router.push('/login?registered=true');
+      setSuccess(true);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -105,182 +106,204 @@ export default function Register() {
         className="glass auth-card" 
         style={{ padding: '3rem', width: '100%', maxWidth: '450px' }}
       >
-        <div className="auth-subtitle" style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <h2 className="auth-title" style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Account</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Join the community for a better city</p>
-        </div>
+        {success ? (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{ textAlign: 'center', padding: '2rem 0' }}
+          >
+            <div style={{ width: '80px', height: '80px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+              <Mail size={40} color="var(--success)" />
+            </div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--text)' }}>Check your email</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem', lineHeight: 1.6, fontSize: '0.95rem' }}>
+              A confirmation link has been sent to <br/><strong style={{ color: 'var(--text)' }}>{formData.email}</strong>.<br/><br/>
+              Please click the link to verify your account and complete registration.
+            </p>
+            <Link href="/login" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.8rem' }}>
+              Return to Login <ArrowRight size={20} />
+            </Link>
+          </motion.div>
+        ) : (
+          <>
+            <div className="auth-subtitle" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <h2 className="auth-title" style={{ fontSize: '1.75rem', fontWeight: 800 }}>Create Account</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Join the community for a better city</p>
+            </div>
 
-        {error && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '0.75rem', textAlign: 'center', fontSize: '0.8rem' }}>
-            {error}
-          </div>
-        )}
+            {error && (
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '0.75rem', textAlign: 'center', fontSize: '0.8rem' }}>
+                {error}
+              </div>
+            )}
 
-        <form onSubmit={handleSubmit} className="auth-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div className="profile-upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <div 
-              style={{ 
-                position: 'relative',
-                cursor: formData.image_url ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
-              }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <div className="profile-circle" style={{ 
-                width: '100px', 
-                height: '100px', 
-                borderRadius: '50%', 
-                background: 'rgba(255,255,255,0.02)', 
-                border: '3px solid var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
-                userSelect: 'none'
-              }}>
-                {formData.image_url ? (
-                  <img 
-                    src={formData.image_url} 
-                    alt="Profile" 
-                    draggable={false}
+            <form onSubmit={handleSubmit} className="auth-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="profile-upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <div 
+                  style={{ 
+                    position: 'relative',
+                    cursor: formData.image_url ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+                  }}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                >
+                  <div className="profile-circle" style={{ 
+                    width: '100px', 
+                    height: '100px', 
+                    borderRadius: '50%', 
+                    background: 'rgba(255,255,255,0.02)', 
+                    border: '3px solid var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+                    userSelect: 'none'
+                  }}>
+                    {formData.image_url ? (
+                      <img 
+                        src={formData.image_url} 
+                        alt="Profile" 
+                        draggable={false}
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover', 
+                          objectPosition: `${position.x}% ${position.y}%`,
+                          transform: `scale(${zoom})`,
+                          transition: isDragging ? 'none' : 'transform 0.2s ease, object-position 0.2s ease'
+                        }} 
+                      />
+                    ) : (
+                      <label style={{ cursor: 'pointer', textAlign: 'center' }}>
+                        <Camera className="profile-icon" size={32} color="var(--text-muted)" />
+                        <div className="profile-label" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Add Photo</div>
+                        <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} />
+                      </label>
+                    )}
+                  </div>
+                  {formData.image_url && (
+                    <label style={{ 
+                      position: 'absolute', 
+                      bottom: '2px', 
+                      right: '2px', 
+                      background: 'var(--primary)', 
+                      borderRadius: '50%', 
+                      width: '28px', 
+                      height: '28px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                    }}>
+                      <Plus size={16} color="white" />
+                      <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Full Name</label>
+                <div style={{ position: 'relative' }}>
+                  <User size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input 
+                    type="text" 
+                    placeholder="John Doe"
+                    required
                     style={{ 
                       width: '100%', 
-                      height: '100%', 
-                      objectFit: 'cover', 
-                      objectPosition: `${position.x}% ${position.y}%`,
-                      transform: `scale(${zoom})`,
-                      transition: isDragging ? 'none' : 'transform 0.2s ease, object-position 0.2s ease'
-                    }} 
+                      padding: '0.6rem 1rem 0.6rem 2.5rem', 
+                      background: 'rgba(255,255,255,0.05)', 
+                      border: '1px solid var(--border)', 
+                      borderRadius: '0.5rem',
+                      color: 'var(--text)',
+                      fontSize: '0.9rem'
+                    }}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
-                ) : (
-                  <label style={{ cursor: 'pointer', textAlign: 'center' }}>
-                    <Camera className="profile-icon" size={32} color="var(--text-muted)" />
-                    <div className="profile-label" style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Add Photo</div>
-                    <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} />
-                  </label>
-                )}
+                </div>
               </div>
-              {formData.image_url && (
-                <label style={{ 
-                  position: 'absolute', 
-                  bottom: '2px', 
-                  right: '2px', 
-                  background: 'var(--primary)', 
-                  borderRadius: '50%', 
-                  width: '28px', 
-                  height: '28px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-                }}>
-                  <Plus size={16} color="white" />
-                  <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} />
-                </label>
-              )}
-            </div>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Full Name</label>
-            <div style={{ position: 'relative' }}>
-              <User size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
-                placeholder="John Doe"
-                required
-                style={{ 
-                  width: '100%', 
-                  padding: '0.6rem 1rem 0.6rem 2.5rem', 
-                  background: 'rgba(255,255,255,0.05)', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: '0.5rem',
-                  color: 'var(--text)',
-                  fontSize: '0.9rem'
-                }}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-          </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email Address</label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input 
+                    type="email" 
+                    placeholder="john@example.com"
+                    required
+                    style={{ 
+                      width: '100%', 
+                      padding: '0.6rem 1rem 0.6rem 2.5rem', 
+                      background: 'rgba(255,255,255,0.05)', 
+                      border: '1px solid var(--border)', 
+                      borderRadius: '0.5rem',
+                      color: 'var(--text)',
+                      fontSize: '0.9rem'
+                    }}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="email" 
-                placeholder="john@example.com"
-                required
-                style={{ 
-                  width: '100%', 
-                  padding: '0.6rem 1rem 0.6rem 2.5rem', 
-                  background: 'rgba(255,255,255,0.05)', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: '0.5rem',
-                  color: 'var(--text)',
-                  fontSize: '0.9rem'
-                }}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-          </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  <input 
+                    type="password" 
+                    placeholder="••••••••"
+                    required
+                    style={{ 
+                      width: '100%', 
+                      padding: '0.6rem 1rem 0.6rem 2.5rem', 
+                      background: 'rgba(255,255,255,0.05)', 
+                      border: '1px solid var(--border)', 
+                      borderRadius: '0.5rem',
+                      color: 'var(--text)',
+                      fontSize: '0.9rem'
+                    }}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  />
+                </div>
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                required
-                style={{ 
-                  width: '100%', 
-                  padding: '0.6rem 1rem 0.6rem 2.5rem', 
-                  background: 'rgba(255,255,255,0.05)', 
-                  border: '1px solid var(--border)', 
-                  borderRadius: '0.5rem',
-                  color: 'var(--text)',
-                  fontSize: '0.9rem'
-                }}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-            </div>
-          </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)' }}>Officer Access Code (Optional)</label>
+                <div style={{ position: 'relative' }}>
+                  <Shield size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', opacity: 0.7 }} />
+                  <input 
+                    type="text" 
+                    placeholder="For dept officers only"
+                    style={{ 
+                      width: '100%', 
+                      padding: '0.6rem 1rem 0.6rem 2.5rem', 
+                      background: 'rgba(99, 102, 241, 0.05)', 
+                      border: '1px solid rgba(99, 102, 241, 0.2)', 
+                      borderRadius: '0.5rem',
+                      color: 'var(--text)',
+                      fontSize: '0.9rem'
+                    }}
+                    onChange={(e) => setFormData({ ...formData, officer_code: e.target.value })}
+                  />
+                </div>
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)' }}>Officer Access Code (Optional)</label>
-            <div style={{ position: 'relative' }}>
-              <Shield size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', opacity: 0.7 }} />
-              <input 
-                type="text" 
-                placeholder="For dept officers only"
-                style={{ 
-                  width: '100%', 
-                  padding: '0.6rem 1rem 0.6rem 2.5rem', 
-                  background: 'rgba(99, 102, 241, 0.05)', 
-                  border: '1px solid rgba(99, 102, 241, 0.2)', 
-                  borderRadius: '0.5rem',
-                  color: 'var(--text)',
-                  fontSize: '0.9rem'
-                }}
-                onChange={(e) => setFormData({ ...formData, officer_code: e.target.value })}
-              />
-            </div>
-          </div>
+              <button type="submit" disabled={loading} className="btn btn-primary auth-btn" style={{ padding: '0.8rem', marginTop: '0.5rem', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
+                {loading ? 'Creating Account...' : 'Create Account'} 
+                {!loading && <ArrowRight size={20} />}
+              </button>
+            </form>
 
-          <button type="submit" disabled={loading} className="btn btn-primary auth-btn" style={{ padding: '0.8rem', marginTop: '0.5rem', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Creating Account...' : 'Create Account'} 
-            {!loading && <ArrowRight size={20} />}
-          </button>
-        </form>
-
-        <p className="auth-links" style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Already have an account? <Link href="/login" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Login here</Link>
-        </p>
+            <p className="auth-links" style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              Already have an account? <Link href="/login" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Login here</Link>
+            </p>
+          </>
+        )}
       </motion.div>
     </div>
   );

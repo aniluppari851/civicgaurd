@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
@@ -17,26 +17,23 @@ export async function POST(req: Request) {
       role = 'DEPARTMENT_OFFICER';
     }
 
-    // Check if user already exists
+    // Check if user already exists in public.users
     const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('email', email)
       .maybeSingle();
 
-    if (checkError) {
-      console.error('Check existing user error:', checkError);
-    }
-
     if (existingUser) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
     }
 
-    // 1. Create user in Supabase Auth (This triggers the confirmation email)
-    const { data: authData, error: authError } = await supabaseAdmin.auth.signUp({
+    // 1. Create user in Supabase Auth (using standard anon client to trigger email)
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?confirmed=true`,
         data: {
           name,
         }
@@ -48,14 +45,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
-    if (!authData.user) {
-      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
+    if (!authData.user || !authData.user.id) {
+      return NextResponse.json({ error: 'Failed to create user account' }, { status: 500 });
     }
 
-    // 2. Insert new user into public.users
+    // 2. Upsert new user into public.users (upsert prevents crashes if a DB trigger already inserted it)
     const { data: newUser, error } = await supabaseAdmin
       .from('users')
-      .insert({
+      .upsert({
         id: authData.user.id,
         name,
         email,
@@ -65,11 +62,14 @@ export async function POST(req: Request) {
         bio: '', // Default empty bio
         is_blocked: false, // Default not blocked
         is_public: true // Default public profile
-      })
+      }, { onConflict: 'id' })
       .select('id, name, email, role, image_url')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database Upsert Error:', error);
+      throw error;
+    }
 
     // If it's an officer, auto-assign to all departments for instant access
     if (role === 'DEPARTMENT_OFFICER') {
