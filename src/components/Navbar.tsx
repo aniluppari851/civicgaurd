@@ -206,6 +206,27 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile Top Header (with Theme Toggle) */}
+      <nav className="glass mobile-only" style={{ 
+        position: 'sticky', 
+        top: '0.5rem', 
+        margin: '0.5rem auto', 
+        width: 'calc(100% - 1rem)', 
+        zIndex: 100,
+        padding: '0.75rem 1rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: 'inherit' }}>
+          <Shield size={24} color="var(--primary)" />
+          <span style={{ fontSize: '1.25rem', fontWeight: 'bold', letterSpacing: '-0.025em' }}>
+            Civic<span style={{ color: 'var(--primary)' }}>Guard</span>
+          </span>
+        </Link>
+        <ThemeToggle />
+      </nav>
+
       {/* Messenger Components */}
       <MessengerHub 
         isOpen={isHubOpen} 
