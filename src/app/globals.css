@@ -161,6 +161,7 @@ main:not(.portal-shell main) {
     max-width: 100% !important;
     border-radius: 0 !important;
     border: none !important;
+    z-index: 2000 !important;
   }
   
   .profile-grid {
