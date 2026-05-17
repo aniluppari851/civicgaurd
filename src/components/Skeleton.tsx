@@ -7,9 +7,10 @@ interface SkeletonProps {
   height?: string | number;
   borderRadius?: string | number;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function Skeleton({ width = '100%', height = '1rem', borderRadius = '0.5rem', className = '' }: SkeletonProps) {
+export default function Skeleton({ width = '100%', height = '1rem', borderRadius = '0.5rem', className = '', style }: SkeletonProps) {
   return (
     <div 
       className={`skeleton-container ${className}`}
@@ -19,7 +20,8 @@ export default function Skeleton({ width = '100%', height = '1rem', borderRadius
         borderRadius, 
         background: 'var(--skeleton-bg)', 
         overflow: 'hidden', 
-        position: 'relative' 
+        position: 'relative',
+        ...style
       }}
     >
       <motion.div
