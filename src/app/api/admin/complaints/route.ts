@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { recordAuditLog } from '@/app/api/admin/audit-logs/route';
+import { recordAuditLog } from '@/lib/audit';
 
 // GET all complaints (no user filtering, only for ADMIN)
 export async function GET(req: Request) {

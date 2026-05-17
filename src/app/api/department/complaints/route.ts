@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { recordAuditLog } from '@/app/api/admin/audit-logs/route';
+import { recordAuditLog } from '@/lib/audit';
 
 export async function GET(req: Request) {
   try {
